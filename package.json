@@ -9,7 +9,7 @@
     "start": "node dist/index.js",
     "dev": "ts-node example/server.ts"
   },
-  "keywords": [],
+  "keywords": ["authentication", "authorization", "express", "typescript", "jwt", "bcrypt", "zod"],
   "author": "",
   "license": "MIT",
   "packageManager": "pnpm@10.11.1",

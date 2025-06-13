@@ -43,9 +43,7 @@ const auth = createAuth({
 const token = await auth.login({ email, password });
 const newUser = await auth.register({ email, password, name });
 const payload = auth.verify(token);
-
-
----
+```
 
 ## ⚙️ API
 
@@ -58,10 +56,10 @@ Inicializa el sistema de autenticación.
 | Nombre           | Tipo                                         | Descripción                              |
 |------------------|----------------------------------------------|------------------------------------------|
 | `secret`         | `string`                                     | Clave secreta para firmar JWT            |
-| `getUserByEmail` | `(email: string) => Promise<TUser \| null>` | Devuelve un usuario                      |
-| `saveUser`       | `(user: TUser) => Promise<TUser>`           | Guarda un nuevo usuario                  |
+| `getUserByEmail` | `(email: string) => Promise<TUser \| null>`  | Devuelve un usuario                      |
+| `saveUser`       | `(user: TUser) => Promise<TUser>`            | Guarda un nuevo usuario                  |
 | `tokenExpiry`    | `string`                                     | Expiración del token (ej: `'1h'`)        |
-| `getUserById`    | `(id: string) => Promise<TUser \| null>`   | Devuelve un usuario por ID               |
+| `getUserById`    | `(id: string) => Promise<TUser \| null>`     | Devuelve un usuario por ID               |
 
 **Métodos retornados:**
 
@@ -85,7 +83,7 @@ import { createAuth } from 'authro';
 const app = express();
 app.use(express.json());
 
-const auth = createAuth({ secret, getUserByEmail, saveUser });
+const auth = createAuth({ secret, getUserByEmail, saveUser, getUserById });
 
 app.post('/register', async (req, res) => {
   try {
@@ -116,14 +114,12 @@ app.get('/perfil', (req, res, next) => {
 }, (req, res) => {
   res.json({ message: 'Ruta protegida', user: req.user });
 });
+```
 
-
-
----
 
 ## 👤 Tipos personalizados
 
-Puedes extender el tipo de usuario base como prefieras:`
+Puedes extender el tipo de usuario base como prefieras:
 
 
 ```ts
