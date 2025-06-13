@@ -181,6 +181,41 @@ app.listen(3000, () => {
 
 ```
 
+## 📚 Más ejemplos
+
+### Registro de usuario
+
+```ts
+const newUser = await auth.register({
+  email: 'user@example.com',
+  password: 'securepassword',
+  name: 'John Doe',
+  role: 'user'
+});
+```
+
+### Inicio de sesión
+
+```ts
+const { token, expiresIn } = await auth.login({
+  email: 'user@example.com',
+  password: 'securepassword'
+});
+``` 
+
+### Verificación de token
+
+```ts
+const payload = auth.verify(token);
+console.log(payload); // { id: 'user-id', email: 'user@example.com' }
+```
+
+### Refresco de token
+
+```ts
+const { token: newToken, expiresIn } = await auth.refresh(oldToken);
+```
+
 
 ## 👤 Tipos personalizados
 
