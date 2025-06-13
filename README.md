@@ -1,9 +1,3 @@
-# Authro
-
-![version](https://img.shields.io/npm/v/authro?style=flat-square)
-![license](https://img.shields.io/npm/l/authro?style=flat-square)
-![build](https://img.shields.io/github/actions/workflow/status/tu_usuario/authro/ci.yml?branch=main&style=flat-square)
-
 **Authro** es una librería de autenticación minimalista y versátil para Node.js, escrita en TypeScript. Está diseñada para desacoplar completamente la lógica de autenticación del framework HTTP que uses (como Express, Fastify o Koa), permitiendo una integración segura, limpia y reutilizable.
 
 ---
@@ -15,7 +9,6 @@
 - 🔄 Compatible con cualquier base de datos (SQL/NoSQL)
 - 🧩 Agnóstica al framework: Express, Fastify, Hapi, etc.
 - ✅ Tipado completo con TypeScript genérico
-- 📦 Lista para publicar como paquete NPM
 
 ---
 
@@ -23,12 +16,11 @@
 
 ```bash
 npm install authro
-# o con pnpm
-pnpm add authro
+```
 
 ## 🧠 Buenas prácticas
 
-- Usa `dotenv` para manejar tu `JWT_SECRET` desde variables de entorno.
+- Usa variables de entorno para manejar tu `JWT_SECRET`.
 - No devuelvas el campo `password` en respuestas.
 - Usa HTTPS en producción.
 - Usa middlewares para proteger rutas de forma más limpia.
@@ -43,7 +35,9 @@ import { createAuth } from 'authro';
 const auth = createAuth({
   secret: process.env.JWT_SECRET!,
   getUserByEmail: async (email) => { /* ... */ },
+  getUserById: async (id) => { /* ... */ },
   saveUser: async (user) => { /* ... */ }
+
 });
 
 const token = await auth.login({ email, password });
@@ -53,9 +47,6 @@ const payload = auth.verify(token);
 
 ---
 
-## ⚙️ API
-
-```md
 ## ⚙️ API
 
 ### `createAuth<TUser>(options)`
@@ -70,24 +61,22 @@ Inicializa el sistema de autenticación.
 | `getUserByEmail` | `(email: string) => Promise<TUser \| null>` | Devuelve un usuario                      |
 | `saveUser`       | `(user: TUser) => Promise<TUser>`           | Guarda un nuevo usuario                  |
 | `tokenExpiry`    | `string`                                     | Expiración del token (ej: `'1h'`)        |
+| `getUserById`    | `(id: string) => Promise<TUser \| null>`   | Devuelve un usuario por ID               |
 
 **Métodos retornados:**
+
 
 ```ts
 {
   register(input: TUser): Promise<Omit<TUser, 'password'>>;
   login(input: { email: string; password: string }): Promise<{ token: string; expiresIn: string }>;
   verify(token: string): any;
+  refresh()
 }
+```
 
-
-
----
 
 ## 🧪 Ejemplo completo con Express
-
-```md
-## 🧪 Ejemplo con Express
 
 ```ts
 import express from 'express';
@@ -134,10 +123,8 @@ app.get('/perfil', (req, res, next) => {
 
 ## 👤 Tipos personalizados
 
-```md
-## 👤 Tipos personalizados
+Puedes extender el tipo de usuario base como prefieras:`
 
-Puedes extender el tipo de usuario base como prefieras:
 
 ```ts
 interface User {
@@ -147,21 +134,7 @@ interface User {
   name: string;
   role: 'user' | 'admin';
 }
-
-
-## 👤 Tipos personalizados
-
-Puedes extender el tipo de usuario base como prefieras:
-
-```ts
-interface User {
-  id: string;
-  email: string;
-  password: string;
-  name: string;
-  role: 'user' | 'admin';
-}
-
+```
 
 ## 🧩 Requisitos
 
@@ -187,13 +160,10 @@ interface User {
 
 ## 📝 Licencia
 
-MIT © [Anderson Marin]
+MIT © Anderson Marin
 
 ## 📫 Contacto
 
 Puedes encontrarme en:
-
-- GitHub: [@tu_usuario](https://github.com/tu_usuario)
-- Twitter: [@tu_twitter](https://twitter.com/tu_twitter)
-- LinkedIn: [Anderson Marin](https://linkedin.com/in/tu_perfil)
-
+- [GitHub](https://github.com/aarturodev)
+- [LinkedIn](https://linkedin.com/in/aarturodev)
