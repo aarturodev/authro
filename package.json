@@ -1,6 +1,6 @@
 {
   "name": "authro",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "",
   "main": "dist/example/server.js",
   "types": "dist/core/types/types.js",
@@ -9,7 +9,15 @@
     "start": "node dist/index.js",
     "dev": "ts-node example/server.ts"
   },
-  "keywords": ["authentication", "authorization", "express", "typescript", "jwt", "bcrypt", "zod"],
+  "keywords": [
+    "authentication",
+    "authorization",
+    "express",
+    "typescript",
+    "jwt",
+    "bcrypt",
+    "zod"
+  ],
   "author": "",
   "license": "MIT",
   "packageManager": "pnpm@10.11.1",
