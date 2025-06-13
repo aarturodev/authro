@@ -1,6 +1,6 @@
 {
   "name": "authro",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "",
   "main": "dist/example/server.js",
   "types": "dist/core/types/types.js",
