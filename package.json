@@ -3,7 +3,7 @@
   "version": "1.0.1",
   "description": "",
   "main": "dist/example/server.js",
-  "types": "dist/types.d.ts",
+  "types": "dist/core/types/types.js",
   "scripts": {
     "build": "tsc",
     "start": "node dist/index.js",
