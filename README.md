@@ -45,7 +45,7 @@ const newUser = await auth.register({ email, password, name });
 const payload = auth.verify(token);
 ```
 
-## ⚙️ API
+## 📖 Documentación
 
 ### `createAuth<TUser>(options)`
 
@@ -53,23 +53,24 @@ Inicializa el sistema de autenticación.
 
 **Parámetros:**
 
-| Nombre           | Tipo                                         | Descripción                              |
-|------------------|----------------------------------------------|------------------------------------------|
-| `secret`         | `string`                                     | Clave secreta para firmar JWT            |
-| `getUserByEmail` | `(email: string) => Promise<TUser \| null>`  | Devuelve un usuario                      |
-| `saveUser`       | `(user: TUser) => Promise<TUser>`            | Guarda un nuevo usuario                  |
-| `tokenExpiry`    | `string`                                     | Expiración del token (ej: `'1h'`)        |
-| `getUserById`    | `(id: string) => Promise<TUser \| null>`     | Devuelve un usuario por ID               |
+| Nombre              | Tipo                                         | Descripción                                  |
+|---------------------|----------------------------------------------|----------------------------------------------|
+| `secret`            | `string`                                     | Clave secreta para firmar JWT                |
+| `getUserByEmail`    | `(email: string) => Promise<TUser \| null>`  | Devuelve un usuario                          |
+| `saveUser`          | `(user: TUser) => Promise<TUser>`            | Guarda un nuevo usuario                      |
+| `accessTokenExpiry` | `string`                                     | Expiración del token (ej: `'1h'`)            |
+| `refreshTokenExpiry`| `string`                                     | Expiración del token de refresco (ej: `'7d'`)|
+| `getUserById`       | `(id: string) => Promise<TUser \| null>`     | Devuelve un usuario por ID               |
 
-**Métodos retornados:**
-
+**Retorna:** Una instancia de autenticación con métodos para registrar, iniciar sesión y verificar usuarios.
+### Métodos de la instancia
 
 ```ts
 {
   register(input: TUser): Promise<Omit<TUser, 'password'>>;
   login(input: { email: string; password: string }): Promise<{ token: string; expiresIn: string }>;
   verify(token: string): any;
-  refresh()
+  refresh(token: string): Promise<{ token: string; expiresIn: string }>;
 }
 ```
 
@@ -80,40 +81,104 @@ Inicializa el sistema de autenticación.
 import express from 'express';
 import { createAuth } from 'authro';
 
+
+// Tipado del usuario
+interface User {
+  id: string;
+  email: string;
+  password: string;
+  name: string;
+  role: 'user' | 'admin';
+}
+
+// Base de datos simulada (en memoria)
+const db: User[] = [];
+
+// Implementación de funciones requeridas por createAuth
+const getUserByEmail = async (email: string): Promise<User | null> => {
+  return db.find(user => user.email === email) || null;
+};
+
+const saveUser = async (userData: Omit<User, 'id'>): Promise<User> => {
+  const newUser: User = { id: Date.now().toString(), ...userData };
+  db.push(newUser);
+  return newUser;
+};
+
+const getUserById = async (id: string): Promise<User | null> => {
+  return db.find(user => user.id === id) || null;
+};
+
+// Inicializar autenticación
+const auth = createAuth<User>({
+  secret: 'super-clave-secreta',
+  getUserByEmail,
+  saveUser,
+  getUserById,
+  accessTokenExpiry: '1h', // opcional
+  refreshTokenExpiry: '7d' // opcional
+});
+
+// Inicializar Express
 const app = express();
 app.use(express.json());
 
-const auth = createAuth({ secret, getUserByEmail, saveUser, getUserById });
+// Rutas
+app.get('/', (req, res) => {
+  res.json({ message: 'Welcome to the Authro'});
 
-app.post('/register', async (req, res) => {
+});
+
+app.post('/register', async (req, res): Promise<any> => {
   try {
-    const user = await auth.register(req.body);
-    res.status(201).json(user);
-  } catch (e: any) {
-    res.status(400).json({ error: e.message });
+
+    const result = await auth.register(req.body);
+    if (!result.success) return res.status(result.status ?? 400).json(result);
+    res.status(201).json(result.user);
+
+  } catch (err: any) {
+    res.status(400).json({ error: err.message });
   }
 });
 
-app.post('/login', async (req, res) => {
+app.post('/login', async (req, res): Promise<any> => {
   try {
-    const token = await auth.login(req.body);
-    res.json(token);
-  } catch (e: any) {
-    res.status(401).json({ error: e.message });
+
+    const result = await auth.login(req.body);
+    if (!result.success) return res.status(result.status ?? 400).json(result);
+    res.json({ accessToken: result.accessToken, refreshToken: result.refreshToken, expiresIn: result.expiresIn });
+
+  } catch (err: any) {
+    res.status(401).json({ error: err.message });
   }
 });
 
-app.get('/perfil', (req, res, next) => {
+app.get('/perfil', (req, res, next): any => {
   try {
-    const token = req.headers.authorization?.split(' ')[1];
-    req.user = auth.verify(token!);
+
+    const header = req.headers.authorization;
+    if (!header || !header.startsWith('Bearer ')) {
+      return res.status(401).json({ error: 'Token is required' });
+    }
+
+    const token = header.split(' ')[1];
+    const payload = auth.verify(token);
+    (req as any).user = payload;
     next();
+
   } catch {
-    return res.status(403).json({ error: 'Token inválido' });
+    res.status(403).json({ error: 'Invalid token' });
   }
 }, (req, res) => {
-  res.json({ message: 'Ruta protegida', user: req.user });
+  res.json({ message: 'Protected route', user: (req as any).user });
 });
+
+
+
+app.listen(3000, () => {
+  console.log('Server running at http://localhost:3000');
+});
+
 ```
 
 
